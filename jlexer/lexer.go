@@ -45,6 +45,7 @@ type Lexer struct {
 	start int   // Start of the current token.
 	pos   int   // Current unscanned position in the input stream.
 	token token // Last scanned token, if token.kind != tokenUndef.
+	key   string
 
 	firstElement bool // Whether current element is the first in array or an object.
 	wantSep      byte // A comma or a colon character, which need to occur before a token.
@@ -461,7 +462,7 @@ func (r *Lexer) errInvalidToken(expected string) {
 		str = string(r.token.byteValue[:maxErrorContextLen-3]) + "..."
 	}
 	r.fatalError = &LexerError{
-		Reason: fmt.Sprintf("expected %s", expected),
+		Reason: fmt.Sprintf("expected %s to be %s", r.key, expected),
 		Offset: r.pos,
 		Data:   str,
 	}
@@ -628,6 +629,7 @@ func (r *Lexer) unsafeString() (string, []byte) {
 // the input buffer. Intended pattern of usage is as an argument to a switch statement.
 func (r *Lexer) UnsafeString() string {
 	ret, _ := r.unsafeString()
+	r.key = ret
 	return ret
 }
 
